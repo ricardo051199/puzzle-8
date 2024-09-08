@@ -3,7 +3,6 @@ import random
 from AgenteIA.Entorno import Entorno
 from AgenteSolucionador import AgenteSolucionador
 
-# Colores y otras configuraciones
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -12,7 +11,7 @@ SCREEN_SIZE = 300
 TILE_SIZE = 100
 GRID_SIZE = 3
 
-goal_state = [8, 7, 6, 5, 4, 3, 2, 1, 0]  # Estado objetivo modificado
+goal_state = [8, 7, 6, 5, 4, 3, 2, 1, 0]
 
 class Puzzle(Entorno):
     def __init__(self):
@@ -22,7 +21,6 @@ class Puzzle(Entorno):
         pygame.display.set_caption("8-Puzzle")
         self.font = pygame.font.Font(None, 100)
         self.grid = self.shuffle_grid(goal_state)
-        self.agente = None
 
     def shuffle_grid(self, grid):
         new_grid = grid[:]
@@ -47,7 +45,16 @@ class Puzzle(Entorno):
         return self.grid
 
     def ejecutar(self, agente):
-        pass
+        self.handle_input(agente)
+        self.draw_grid()
+        if self.is_solved(self.grid):
+            text = self.font.render("¡Ganaste!", True, RED)
+            self.screen.blit(text, (50, 120))
+            pygame.display.flip()
+            pygame.time.wait(2000)
+            pygame.quit()
+            exit()
+        pygame.display.flip()
 
     def draw_grid(self):
         self.screen.fill(WHITE)
@@ -61,19 +68,7 @@ class Puzzle(Entorno):
                     text_rect = text.get_rect(center=tile_rect.center)
                     self.screen.blit(text, text_rect)
 
-    def evolucionar(self):
-        self.handle_input()
-        self.draw_grid()
-        if self.is_solved(self.grid):
-            text = self.font.render("¡Ganaste!", True, RED)
-            self.screen.blit(text, (50, 120))
-            pygame.display.flip()
-            pygame.time.wait(2000)
-            pygame.quit()
-            exit()
-        pygame.display.flip()
-
-    def handle_input(self):
+    def handle_input(self, agente):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -87,8 +82,8 @@ class Puzzle(Entorno):
                     self.grid = self.move_tile(self.grid, "left")
                 elif event.key == pygame.K_RIGHT:
                     self.grid = self.move_tile(self.grid, "right")
-                elif event.key == pygame.K_SPACE and self.agente:
-                    mejor_camino = self.agente.buscar(self.grid)
+                elif event.key == pygame.K_SPACE:
+                    mejor_camino = agente.buscar(self.grid)
                     if mejor_camino:
                         for accion in mejor_camino:
                             self.grid = self.move_tile(self.grid, accion)

@@ -10,7 +10,6 @@ from AgenteIA.Agente import Agente
 from copy import deepcopy
 import time
 
-
 class AgenteBuscador(Agente):
     def __init__(self):
         Agente.__init__(self)
