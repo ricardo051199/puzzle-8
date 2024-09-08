@@ -1,8 +1,9 @@
 import pygame
 import random
 from AgenteIA.Entorno import Entorno
+from AgenteSolucionador import AgenteSolucionador
 
-# Colores
+# Colores y otras configuraciones
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -11,16 +12,17 @@ SCREEN_SIZE = 300
 TILE_SIZE = 100
 GRID_SIZE = 3
 
-goal_state = [8, 7, 6, 5, 4, 3, 2, 1, 0]
+goal_state = [8, 7, 6, 5, 4, 3, 2, 1, 0]  # Estado objetivo modificado
 
 class Puzzle(Entorno):
     def __init__(self):
-        Entorno.__init__(self)
+        super().__init__()
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_SIZE, SCREEN_SIZE))
         pygame.display.set_caption("8-Puzzle")
         self.font = pygame.font.Font(None, 100)
         self.grid = self.shuffle_grid(goal_state)
+        self.agente = None
 
     def shuffle_grid(self, grid):
         new_grid = grid[:]
@@ -43,6 +45,9 @@ class Puzzle(Entorno):
 
     def get_percepciones(self, agente):
         return self.grid
+
+    def ejecutar(self, agente):
+        pass
 
     def draw_grid(self):
         self.screen.fill(WHITE)
@@ -82,6 +87,14 @@ class Puzzle(Entorno):
                     self.grid = self.move_tile(self.grid, "left")
                 elif event.key == pygame.K_RIGHT:
                     self.grid = self.move_tile(self.grid, "right")
+                elif event.key == pygame.K_SPACE and self.agente:
+                    mejor_camino = self.agente.buscar(self.grid, goal_state)
+                    if mejor_camino:
+                        for accion in mejor_camino:
+                            self.grid = self.move_tile(self.grid, accion)
+                            self.draw_grid()
+                            pygame.display.flip()
+                            pygame.time.wait(500)
 
     def move_tile(self, grid, direction):
         blank_index = grid.index(0)
