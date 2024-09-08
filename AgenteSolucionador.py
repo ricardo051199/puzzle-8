@@ -4,6 +4,7 @@ import heapq
 class AgenteSolucionador:
     def __init__(self):
         AgenteBuscador.__init__(self)
+        self.estado_meta = [8, 7, 6, 5, 4, 3, 2, 1, 0]
         self.heuristicas = {
             "manhattan": self.heuristica_manhattan,
             "misplaced": self.heuristica_misplaced,
@@ -11,7 +12,7 @@ class AgenteSolucionador:
         }
         self.heuristica_actual = None
 
-    def set_tecnica(self, tecnica):
+    def set_heuristica(self, tecnica):
         if tecnica in self.heuristicas:
             self.tecnica = tecnica
             self.heuristica_actual = self.heuristicas[tecnica]
@@ -22,27 +23,27 @@ class AgenteSolucionador:
         total_distancia = 0
         for i, tile in enumerate(estado):
             if tile != 0:
-                objetivo = goal_state.index(tile)
+                objetivo = self.estado_meta.index(tile)
                 fila_actual, col_actual = divmod(i, 3)
                 fila_objetivo, col_objetivo = divmod(objetivo, 3)
                 total_distancia += abs(fila_actual - fila_objetivo) + abs(col_actual - col_objetivo)
         return total_distancia
 
     def heuristica_misplaced(self, estado):
-        return sum(1 for i, tile in enumerate(estado) if tile != 0 and tile != goal_state[i])
+        return sum(1 for i, tile in enumerate(estado) if tile != 0 and tile != self.estado_meta[i])
 
     def heuristica_combinada(self, estado):
         return self.heuristica_manhattan(estado) + self.heuristica_misplaced(estado)
 
-    def buscar(self, estado_inicial, estado_meta):
+    def buscar(self, estado_inicial):
         if self.tecnica == "codicioso":
-            return self.busqueda_codiciosa(estado_inicial, estado_meta)
+            return self.busqueda_codiciosa(estado_inicial, self.estado_meta)
         elif self.tecnica == "a*":
-            return self.busqueda_a_star(estado_inicial, estado_meta)
+            return self.busqueda_a_star(estado_inicial, self.estado_meta)
         else:
             raise ValueError("Técnica no asignada o no reconocida")
 
-    def busqueda_codiciosa(self, estado_inicial, estado_meta):
+    def busqueda_codiciosa(self, estado_inicial):
         frontera = []
         heapq.heappush(frontera, (self.heuristica_actual(estado_inicial), estado_inicial, []))
         visitados = set()
@@ -50,7 +51,7 @@ class AgenteSolucionador:
         while frontera:
             _, estado, camino = heapq.heappop(frontera)
             
-            if estado == estado_meta:
+            if estado == self.estado_meta:
                 return camino
             
             if tuple(estado) in visitados:
@@ -62,7 +63,7 @@ class AgenteSolucionador:
                     heapq.heappush(frontera, (self.heuristica_actual(siguiente_estado), siguiente_estado, camino + [accion]))
         return None
 
-    def busqueda_a_star(self, estado_inicial, estado_meta):
+    def busqueda_a_star(self, estado_inicial):
         frontera = []
         heapq.heappush(frontera, (0 + self.heuristica_actual(estado_inicial), 0, estado_inicial, []))
         visitados = set()
@@ -70,7 +71,7 @@ class AgenteSolucionador:
         while frontera:
             _, costo, estado, camino = heapq.heappop(frontera)
             
-            if estado == estado_meta:
+            if estado == self.estado_meta:
                 return camino
             
             if tuple(estado) in visitados:
@@ -84,7 +85,6 @@ class AgenteSolucionador:
         return None
 
     def sucesores(self, estado):
-        # Implementar la generación de sucesores aquí
         sucesores = []
         indices = [i for i, tile in enumerate(estado) if tile == 0]
         for index in indices:

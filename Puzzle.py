@@ -88,7 +88,7 @@ class Puzzle(Entorno):
                 elif event.key == pygame.K_RIGHT:
                     self.grid = self.move_tile(self.grid, "right")
                 elif event.key == pygame.K_SPACE and self.agente:
-                    mejor_camino = self.agente.buscar(self.grid, goal_state)
+                    mejor_camino = self.agente.buscar(self.grid)
                     if mejor_camino:
                         for accion in mejor_camino:
                             self.grid = self.move_tile(self.grid, accion)
