@@ -9,6 +9,7 @@
 from AgenteIA.Agente import Agente
 from copy import deepcopy
 import time
+import math
 
 class AgenteBuscador(Agente):
     def __init__(self):
@@ -17,9 +18,22 @@ class AgenteBuscador(Agente):
         self.estado_meta = None
         self.funcion_sucesor = []
         self.tecnica = None
+        self.heuristica = None
+        self.n_frontera = 0
 
     def set_tecnica(self, t):
-        self.tecnica = t
+        if t == "codicioso":
+            self.tecnica = self.busqueda_codiciosa
+        elif t == "a_estrella":
+            self.tecnica = self.busqueda_a_star
+
+    def set_heuristica(self, h):
+        if h == "manhattan":
+            self.heuristica = self.heuristica_manhattan
+        elif h == "misplaced":
+            self.heuristica = self.heuristica_misplaced
+        elif h == "euclidiana":
+            self.heuristica = self.heuristica_euclidiana
 
     def add_funcion(self, f):
         self.funcion_sucesor.append(f)
@@ -34,24 +48,36 @@ class AgenteBuscador(Agente):
             hijos.append(h)
         return hijos
 
-    def get_costo(self, camino):
-        raise Exception("Error: No existe implementacion")
+    def heuristica_manhattan(self, estado):
+        total_distancia = 0
+        for i, tile in enumerate(estado):
+            if tile != 0:
+                objetivo = self.estado_meta.index(tile)
+                fila_actual, col_actual = divmod(i, 3)
+                fila_objetivo, col_objetivo = divmod(objetivo, 3)
+                total_distancia += abs(fila_actual - fila_objetivo) + abs(col_actual - col_objetivo)
+        return total_distancia
 
-    def get_heuristica(self, camino):
-        raise Exception("Error: No existe implementacion")
+    def heuristica_misplaced(self, estado):
+        return sum(1 for i, tile in enumerate(estado) if tile != 0 and tile != self.estado_meta[i])
+    
+    def heuristica_euclidiana(self, estado):
+        total_distancia = 0
+        for i, tile in enumerate(estado):
+            if tile != 0:
+                objetivo = self.estado_meta.index(tile)
+                fila_actual, col_actual = divmod(i, 3)
+                fila_objetivo, col_objetivo = divmod(objetivo, 3)
+                distancia = math.sqrt((fila_actual - fila_objetivo) ** 2 + (col_actual - col_objetivo) ** 2)
+                total_distancia += distancia
+        return total_distancia
+    
+    def busqueda_codiciosa(self):
+        pass
 
-    def get_funcion_a(self, camino):
-        return self.get_costo(camino) + self.get_heuristica(camino)
-
-    def mide_tiempo(funcion):
-        def funcion_medida(*args, **kwards):
-            inicio = time.time()
-            c = funcion(*args, **kwards)
-            print("Tiempo de ejecucion: ", time.time()-inicio)
-            return c
-        return funcion_medida
-
-    @mide_tiempo
+    def busqueda_a_star(self):
+        pass
+    
     def programa(self):
         frontera = [[self.estado_inicial]]
         visitados = []
@@ -71,9 +97,7 @@ class AgenteBuscador(Agente):
                         aux = deepcopy(camino)
                         aux.append(hijo)
                         frontera.append(aux)
-                if self.tecnica == "costouniforme":
-                    frontera.sort(key=lambda tup: self.get_costo(tup))
-                elif self.tecnica == "codicioso":
-                    frontera.sort(key=lambda tup: self.get_heuristica(tup))
+                if self.tecnica == "codicioso":
+                    frontera.sort(key=lambda tup: self.busqueda_codiciosa(tup))
                 elif self.tecnica == "a_estrella":
-                    frontera.sort(key=lambda tup: self.get_funcion_a(tup))
+                    frontera.sort(key=lambda tup: self.busqueda_a_star(tup))

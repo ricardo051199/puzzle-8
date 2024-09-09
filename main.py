@@ -4,6 +4,7 @@ from Puzzle import Puzzle
 if __name__ == "__main__":
     juego = Puzzle()
     juan = AgenteSolucionador()
+    juan.set_tecnica("codicioso")
     juan.set_heuristica("manhattan")
     juego.insertar(juan)
-    juego.run()
+    juego.run() 
