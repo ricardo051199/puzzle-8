@@ -5,7 +5,7 @@ from AgenteIA.AgenteBuscador import AgenteBuscador
 class AgenteSolucionador(AgenteBuscador):
     def __init__(self):
         super().__init__()
-        self.estado_meta = [8, 7, 6, 5, 4, 3, 2, 1, 0]
+        self.estado_meta = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
     def buscar(self, estado_inicial):
         return self.tecnica(estado_inicial)

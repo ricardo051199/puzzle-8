@@ -12,7 +12,7 @@ SCREEN_SIZE = 300
 TILE_SIZE = 100
 GRID_SIZE = 3
 
-goal_state = [8, 7, 6, 5, 4, 3, 2, 1, 0]
+goal_state = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
 class Puzzle(Entorno):
     def __init__(self, grid=None):
@@ -98,7 +98,7 @@ class Puzzle(Entorno):
                             self.grid = self.move_tile(self.grid, accion)
                             self.draw_grid()
                             pygame.display.flip()
-                            pygame.time.wait(5)
+                            pygame.time.wait(500)
 
     def move_tile(self, grid, direction):
         blank_index = grid.index(0)
@@ -147,19 +147,11 @@ class Puzzle(Entorno):
         }
     
     def jugar_y_registrar(self, agente, tecnica, heuristica):
-        # Configurar el agente
         agente.set_tecnica(tecnica)
         agente.set_heuristica(heuristica)
-        
-        # Guardar el estado inicial
         estado_inicial = self.grid
-        
-        # Iniciar el temporizador
         start_time = time.time()
-        
-        # Ejecutar el agente para encontrar el mejor camino
         mejor_camino = agente.buscar(self.grid)
-
         if mejor_camino:
             for accion in mejor_camino:
                 self.grid = self.move_tile(self.grid, accion)
@@ -169,7 +161,7 @@ class Puzzle(Entorno):
         
         tiempo_resolucion = end_time - start_time
         
-        if self.grid == [8,7,6,5,4,3,2,1,0]:
+        if self.grid == goal_state:
             gano = True
 
 
